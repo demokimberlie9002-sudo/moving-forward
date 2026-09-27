@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Moving Forward | A Self-Care Companion</title>
+<style>
+:root{--bg:#f7f5ff;--card:#fff;--text:#29263a;--muted:#706c80;--accent:#7567d8;--accent2:#eeeaff;--line:#e8e4f2;--good:#4d8b69}
+*{box-sizing:border-box} body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text);line-height:1.5}
+header{background:linear-gradient(135deg,#7567d8,#9a8fe8);color:white;padding:34px 20px;text-align:center}
+header h1{margin:0 0 7px;font-size:34px} header p{margin:0;opacity:.92}
+nav{position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid var(--line);display:flex;justify-content:center;gap:6px;padding:8px;flex-wrap:wrap}
+nav button{border:0;background:transparent;padding:10px 14px;border-radius:10px;color:var(--text);cursor:pointer;font-weight:600}
+nav button.active,nav button:hover{background:var(--accent2);color:var(--accent)}
+main{max-width:950px;margin:28px auto;padding:0 18px}
+.page{display:none}.page.active{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:24px;margin-bottom:18px;box-shadow:0 4px 18px rgba(45,35,80,.05)}
+h2{margin-top:0}.muted{color:var(--muted)}
+.mood-grid,.activity-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px}
+.choice,.activity{border:1px solid var(--line);background:#fff;border-radius:14px;padding:17px;cursor:pointer;text-align:center;font-size:16px}
+.choice:hover,.activity:hover{border-color:var(--accent);background:var(--accent2)}
+.choice.selected{border:2px solid var(--accent);background:var(--accent2)}
+#suggestion{margin-top:16px;background:var(--accent2);border-radius:14px;padding:16px;display:none}
+textarea{width:100%;min-height:190px;border:1px solid var(--line);border-radius:14px;padding:15px;font:inherit;resize:vertical}
+button.primary{background:var(--accent);color:#fff;border:0;border-radius:11px;padding:12px 18px;font-weight:700;cursor:pointer}
+button.secondary{background:#f1eff8;color:var(--text);border:0;border-radius:11px;padding:12px 18px;font-weight:700;cursor:pointer}
+button.danger{background:#fff0f0;color:#a33;border:1px solid #f0cccc;border-radius:11px;padding:9px 13px;cursor:pointer}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.check{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--line)}
+.check input{width:20px;height:20px;accent-color:var(--accent)}
+.progress{height:12px;background:#eeeaf5;border-radius:99px;overflow:hidden;margin:10px 0 18px}
+.progress span{display:block;height:100%;background:var(--accent);width:0%;transition:.3s}
+.entry{border:1px solid var(--line);border-radius:14px;padding:15px;margin-top:12px;background:#fbfaff}
+.entry small{color:var(--muted)} footer{text-align:center;color:var(--muted);padding:30px 15px;font-size:13px}
+.notice{font-size:13px;color:var(--muted);background:#faf9fd;border-left:3px solid var(--accent);padding:12px}
+@media(max-width:600px){header h1{font-size:28px}.card{padding:18px}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Moving Forward 🌱</h1>
+  <p>A simple self-care companion for difficult days</p>
+</header>
+
+<nav>
+  <button class="active" data-page="home">Check-in</button>
+  <button data-page="journal">Journal</button>
+  <button data-page="routine">My Routine</button>
+  <button data-page="activities">Activities</button>
+  <button data-page="about">About</button>
+</nav>
+
+<main>
+<section id="home" class="page active">
+  <div class="card">
+    <h2>How are you feeling today?</h2>
+    <p class="muted">You don't have to explain everything. Just choose what feels closest right now.</p>
+    <div class="mood-grid">
+      <button class="choice" data-mood="Okay">🙂<br>Okay</button>
+      <button class="choice" data-mood="Sad">😔<br>Sad</button>
+      <button class="choice" data-mood="Overwhelmed">😟<br>Overwhelmed</button>
+      <button class="choice" data-mood="Lonely">🥺<br>Lonely</button>
+      <button class="choice" data-mood="Unsure">😐<br>Not sure</button>
+    </div>
+    <div id="suggestion"></div>
+  </div>
+
+  <div class="card">
+    <h2>Today's reminder</h2>
+    <p>You don't have to “move on” on a schedule. Healing and adjusting can take time. Focus on small, healthy steps that help you take care of yourself today.</p>
+  </div>
+</section>
+
+<section id="journal" class="page">
+  <div class="card">
+    <h2>Private Journal</h2>
+    <p class="muted">Write whatever you need to get out. Your entries are saved only in this browser on this device.</p>
+    <textarea id="journalText" placeholder="What are you feeling today? What do you need right now?"></textarea>
+    <div class="row" style="margin-top:12px">
+      <button class="primary" id="saveJournal">Save Entry</button>
+      <button class="secondary" id="clearText">Clear</button>
+    </div>
+    <div id="entries"></div>
+  </div>
+</section>
+
+<section id="routine" class="page">
+  <div class="card">
+    <h2>My Routine</h2>
+    <p class="muted">Small routines can help you stay connected to everyday life.</p>
+    <div class="progress"><span id="progressBar"></span></div>
+    <p id="progressText" class="muted">0 of 6 completed</p>
+    <div id="checks">
+      <label class="check"><input type="checkbox"> Got enough rest</label>
+      <label class="check"><input type="checkbox"> Ate a meal</label>
+      <label class="check"><input type="checkbox"> Worked on schoolwork</label>
+      <label class="check"><input type="checkbox"> Spent time with someone I trust</label>
+      <label class="check"><input type="checkbox"> Did something I enjoy</label>
+      <label class="check"><input type="checkbox"> Took a break from social media</label>
+    </div>
+  </div>
+</section>
+
+<section id="activities" class="page">
+  <div class="card">
+    <h2>What can I do right now?</h2>
+    <p class="muted">Choose something small and healthy. You can change your mind anytime.</p>
+    <div class="activity-grid">
+      <button class="activity" data-activity="reflect">📝<br>Reflect</button>
+      <button class="activity" data-activity="focus">📚<br>Focus</button>
+      <button class="activity" data-activity="move">🚶<br>Move</button>
+      <button class="activity" data-activity="connect">👥<br>Connect</button>
+      <button class="activity" data-activity="create">🎨<br>Create</button>
+      <button class="activity" data-activity="rest">🌿<br>Rest</button>
+    </div>
+    <div id="activityResult" style="margin-top:16px"></div>
+  </div>
+</section>
+
+<section id="about" class="page">
+  <div class="card">
+    <h2>About this project</h2>
+    <p><strong>Moving Forward</strong> is a student-designed prototype intended to support healthy coping and everyday routines after a difficult relationship ending or other emotional change.</p>
+    <p>It does not diagnose mental-health conditions or promise to make someone forget a person. It simply organizes gentle self-care tools in one place.</p>
+    <div class="notice">If someone feels unsafe, is thinking about hurting themselves, or cannot cope with everyday life, this website is not a substitute for professional help. They should tell a trusted adult, school counselor, parent/guardian, or qualified mental-health professional.</div>
+  </div>
+</section>
+</main>
+
+<footer>Student prototype • Your journal stays on this device</footer>
+
+<script>
+const suggestions={
+"Okay":"Keep going with your day. You can choose one small activity that feels meaningful to you.",
+"Sad":"It's okay to have a difficult day. Try writing down what you feel or spending a little time with someone you trust.",
+"Overwhelmed":"Pause for a moment. Take a few slow breaths, choose one small task, and give yourself permission to take things one step at a time.",
+"Lonely":"Consider reaching out to someone you trust, even with a simple message like “Can we talk for a while?”",
+"Unsure":"You don't need to have everything figured out today. Try a small routine activity and check in with yourself later."
+};
+document.querySelectorAll("nav button").forEach(btn=>{
+ btn.onclick=()=>{
+  document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  btn.classList.add("active"); document.getElementById(btn.dataset.page).classList.add("active");
+ };
+});
+document.querySelectorAll(".choice").forEach(btn=>{
+ btn.onclick=()=>{
+  document.querySelectorAll(".choice").forEach(b=>b.classList.remove("selected"));
+  btn.classList.add("selected");
+  const box=document.getElementById("suggestion");
+  box.style.display="block"; box.innerHTML="<strong>A gentle suggestion:</strong><br>"+suggestions[btn.dataset.mood];
+ };
+});
+
+function loadEntries(){
+ const entries=JSON.parse(localStorage.getItem("mf_entries")||"[]");
+ const box=document.getElementById("entries");
+ box.innerHTML=entries.length?"<h3>Saved entries</h3>":"";
+ entries.slice().reverse().forEach((e,i)=>{
+   const div=document.createElement("div"); div.className="entry";
+   div.innerHTML="<small>"+e.date+"</small><p></p>";
+   div.querySelector("p").textContent=e.text;
+   box.appendChild(div);
+ });
+}
+document.getElementById("saveJournal").onclick=()=>{
+ const text=document.getElementById("journalText").value.trim();
+ if(!text){alert("Write something first.");return}
+ const entries=JSON.parse(localStorage.getItem("mf_entries")||"[]");
+ entries.push({text,date:new Date().toLocaleString()});
+ localStorage.setItem("mf_entries",JSON.stringify(entries));
+ document.getElementById("journalText").value=""; loadEntries();
+};
+document.getElementById("clearText").onclick=()=>document.getElementById("journalText").value="";
+loadEntries();
+
+const checks=[...document.querySelectorAll("#checks input")];
+function updateRoutine(){
+ const done=checks.filter(c=>c.checked).length, pct=Math.round(done/checks.length*100);
+ document.getElementById("progressBar").style.width=pct+"%";
+ document.getElementById("progressText").textContent=`${done} of ${checks.length} completed`;
+ localStorage.setItem("mf_routine",JSON.stringify(checks.map(c=>c.checked)));
+}
+const saved=JSON.parse(localStorage.getItem("mf_routine")||"[]");
+checks.forEach((c,i)=>{if(saved[i])c.checked=true;c.addEventListener("change",updateRoutine)}); updateRoutine();
+
+const activityText={
+reflect:"Try writing three sentences: “What am I feeling?”, “What do I need today?”, and “What is one thing I can control?”",
+focus:"Choose one small school task and work on it for 15–20 minutes. You can take a short break afterward.",
+move:"Try gentle movement such as stretching or taking a short walk. The goal is simply to change your surroundings and care for your body.",
+connect:"Message or talk to someone you trust. You don't need to explain everything; simply spending time with someone can help.",
+create:"Draw, write, make music, or work on another hobby. Creating something can give your attention a healthy place to go.",
+rest:"Put your phone down for a few minutes, get comfortable, and give yourself a quiet break."
+};
+document.querySelectorAll(".activity").forEach(btn=>btn.onclick=()=>{
+ document.getElementById("activityResult").innerHTML="<div class='notice'><strong>Try this:</strong><br>"+activityText[btn.dataset.activity]+"</div>";
+});
+</script>
+</body>
+</html>
